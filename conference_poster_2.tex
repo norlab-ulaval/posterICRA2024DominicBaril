@@ -6,6 +6,13 @@
 
 \usepackage[orientation=portrait,size=a0,scale=1.4]{beamerposter} % Use the beamerposter package for laying out the poster with a portrait orientation and an a0 paper size
 
+% \toprule, \midrule, \bottomrule % instead of \hline
+\usepackage{booktabs}
+% Tables that can fit page length
+\usepackage{tabularx}
+% Multirows and multicolumns in table
+\usepackage{multirow, multicol}
+
 \usetheme{I6pd2} % Use the I6pd2 theme supplied with this template
 \usepackage[english]{babel} % English language/hyphenation
 \usepackage{amsmath,amsthm,amssymb,latexsym} % For including math equations, theorems, symbols, etc
@@ -25,15 +32,73 @@
 \setbeamertemplate{bibliography entry location}{}
 \setbeamertemplate{bibliography entry note}{}
 
+
+% Acronyms
+\usepackage{acronym}
+\acrodef{SLAM}{simultaneous localization and mapping}
+\acrodef{SOTA}{state-of-the-art}
+\acrodef{SSMR}{skid-steering mobile robot}
+\acrodef{AMR}{Ackermann mobile robot}
+\acrodef{UGV}{Uncrewed ground vehicle} %FP: more gender neutral
+\acrodef{IDD}{ideal differential-drive}
+\acrodef{ICR}{instantaneous center or rotation}
+\acrodef{RTK}{Realtime Kinematics}
+\acrodef{GNSS}{Global Navigation Satellite System}
+\acrodef{ROC}{radius of curvature}
+\acrodef{IMU}{inertial measurement unit}
+\acrodef{MPC}{model predictive control}
+\acrodef{GP}{Gaussian processe}
+\acrodef{BLR}{Bayesian linear regression}
+\acrodef{IPEM}{integrated prediction error minimization}
+\acrodef{MLP}{multilayer perceptron}
+\acrodef{ICP}{iterative closest point}
+\acrodef{MRMSE}{multi-step root mean squared error}
+\acrodef{T-MRMSE}{translational multi-step root mean squared error}
+\acrodef{R-MRMSE}{rotational multi-step root mean squared error}
+\acrodef{M-Z-score}{multi-step Z-score}
+\acrodef{DRIVE}{Data-driven Robot Input Vector Exploration}
+\acrodef{VISTA}{Vehicle Input Space Training Assistant}
+
+% models
+% \bm % in equations for proper bold font
+\usepackage{bm}
+\newcommand{\DOUGHNUTCALIB}{\ac{DRIVE}\xspace}
+\newcommand{\ICRBASED}{\ac{ICR}-based\xspace} 
+\newcommand{\DIMPARAMS}{\bm k}
+\newcommand{\HORDUR}{h_d}
+\newcommand{\WINSIZE}{h}
+\newcommand{\TRAINDATA}{$\mathcal{D}$\xspace}
+\newcommand{\DOUGHNUTDATA}{$\mathcal{D}_D$}
+\newcommand{\HUMANDATA}{$\mathcal{D}_H$}
+\newcommand{\PREDSTATE}{\,^\mapf\!\hat{\bm q}}
+\newcommand{\MEASSTATE}{\,^\mapf\bm q}
+\newcommand{\MARMOTTE}{HD2\xspace}
+\newcommand{\CMDBODYVEL}{^{\robotf}\bm{f}}
+\newcommand{\SLIPBODYVEL}{^{\robotf}\bm{g}}
+\newcommand{\OBSERVEDSLIP}{\bm{g}}
+\newcommand{\INPUTVECTOR}{\bm{u}}
+\newcommand{\STATEPROPMAT}{_{\robotf}^{\mapf}\bm{T}\left(^\mapf\theta_t\right)}
+\newcommand{\INPUTSPACE}{\mathcal{J}}
+\newcommand{\BODYVELSPACE}{\mathcal{B}}
+\newcommand{\CENTRIFUGAL}{\psi}
+\newcommand{\OPTIMCALIBTIME}{$t_{\text{opt}}$\xspace}
+\newcommand{\robotstate}{\bm{q}}
+\newcommand{\mapf}{\mathcal{G}} % map reference frame
+\newcommand{\robotf}{\mathcal{R}} % robot reference frame
+\newcommand{\learnedslip}{\bm{\Xi}}
+\newcommand{\blrweights}{\bm{\gamma}}
+\newcommand{\blrinputs}{^{\robotf}\bm{x}}
+\newcommand{\MRSME}{\epsilon}
+
 %----------------------------------------------------------------------------------------
 %	TITLE SECTION 
 %----------------------------------------------------------------------------------------
 
 \title{\huge DRIVE: Data-driven Robot Input Vector Exploration} % Poster title
 
-\author{\normalsize Dominic Baril$^{1}$, Simon-Pierre Deschênes$^{1}$, Luc Coupal$^{1}$, Cyril Goffin, \\Julien Lépine$^{1}$, Philippe Giguère$^{1}$, François Pomerleau$^{1}$} % Author(s)} % Author(s)
+\author{\normalsize Dominic Baril$^{1}$, Simon-Pierre Deschênes$^{1}$, Luc Coupal$^{1}$, Cyril Goffin$^{2}$, \\Julien Lépine$^{1}$, Philippe Giguère$^{1}$, François Pomerleau$^{1}$} % Author(s)} % Author(s)
 
-\institute{\small$^1$ Northern Robotics Laboratory, Universit\'e Laval} % Institution(s)
+\institute{\small$^1$ Northern Robotics Laboratory, Universit\'e Laval \small$^2$ École Polytechnique Fédérale de Lausanne} % Institution(s)
 
 %----------------------------------------------------------------------------------------
 %	FOOTER TEXT
@@ -41,7 +106,7 @@
 
 \newcommand{\leftfoot}{IEEE International Conference on Robotics and Automation 2024} % Left footer text
 
-\newcommand{\rightfoot}{dominic.baril@norlab.ulaval.ca} % Right footer text
+\newcommand{\rightfoot}{\{dominic.baril, francois.pomerleau\}@norlab.ulaval.ca} % Right footer text
 
 %----------------------------------------------------------------------------------------
 
@@ -60,28 +125,73 @@
 %----------------------------------------------------------------------------------------
 %	OBJECTIVES
 %----------------------------------------------------------------------------------------
-
+\vspace{-12.5mm}
 \begin{block}{Context \& Motivations}
-blablabla
+\begin{itemize}
+	\item A motion model is a key component of autonomous navigation systems, but \acp{UGV} behavior varies significantly depending on terrain and vehicle properties.
+	\item Sensory measurements and information on ground properties are limited.
+	\item Empirical training dataset gathering is energy and time consuming~\cite{Williams2018}, two critical resources for remote deployments.
+	\item Facilitating and automating the task of gathering a training dataset if of high importance for field operations.
+\end{itemize}
 \end{block}
 
-\begin{block}{Block}
-	\begin{columns} % Subdivide the first main column
-	\begin{column}{.58\textwidth} % The first subdivided column within the first main column
+\begin{block}{\acf{DRIVE}}
+	\begin{figure}
+		\includegraphics[width=0.785\linewidth]{figures/Figure_1_final_no_margin.pdf}%
+		\vspace{-7mm}
+		\caption{
+			Vehicle and terrain characterization done through DRIVE.
+			The manufacturer-defined Naive input-space region is drawn in gray.
+			The vehicle's true input-space, characterized through internal measurements, is shown in orange.
+			Typical human driving is shown in red.
+			% The scatter dots show the uniform input-space sampling in orange and resulting body velocities estimated through external measurements in green and blue.
+			The resulting body velocities are represented in green for gravel and blue for snow.
+			%The resulting terrain-dependent body velocity is shown as the green diamond for gravel and blue diamond for snow.
+			% We observe a~\SI{50}{\%} area reduction between naive and true input-space, then another~\SI{50}{\%} area reduction between external calibration and internal calibration.
+			% The equivalent internal to external reduction is of~\SI{87.5}{\%} for snow.
+		}
+		\label{fig:simu}
+	\end{figure}
 		\begin{itemize}
-			\item item1
-			\item item2 
-		\end{itemize}
-	\end{column}
-	\begin{column}{.42\textwidth} % The second subdivided column within the first main column
+		\item Automated protocol for vehicle input space characterization and training dataset gathering.
+		\item Random uniform input sampling minimized input bias and stimulates dynamic, transitory behavior.
+		\item \SI{6}{\second} intervals to stimulate transitory and steady behavior.
+		\item \SI{46}{\second} required to train a motion model.
+	\end{itemize}
+	\begin{table}[!ht]
+		\caption{
+			Median prediction improvement for all robots and terrains.
+		}
+		\label{tab:drive_improvement}
 		\centering
-		\begin{figure}
-			\includegraphics[width=0.8\linewidth]{example-image-a}
-			\caption{caption}
-		\end{figure}
-	\end{column}
-	\end{columns} % End of the subdivision
+		\begin{tabularx}{0.9\textwidth}{l*{6}{>{\centering\arraybackslash}X}}
+			\toprule
+			Prediction & \multicolumn{2}{>{\hsize=\dimexpr2\hsize+2\tabcolsep+\arrayrulewidth\relax}c}{Husky}
+			& \multicolumn{2}{>{\hsize=\dimexpr2\hsize+2\tabcolsep+\arrayrulewidth\relax}c}{HD2}
+			& \multicolumn{2}{>{\hsize=\dimexpr2\hsize+2\tabcolsep+\arrayrulewidth\relax}c}{Warthog} \\
+			improvement & Tile & Snow & Tile & Snow & Gravel & Ice \\ \toprule
+			Translation (\%) & 35 & 10 & 33 & 31 & 50 & 11 \\
+			Rotation (\%) & 18 & 61 & 27 & 51 & 61 & 7 \\
+			\bottomrule
+		\end{tabularx}
+	\end{table}
+	\begin{figure}%
+		\includegraphics[width=0.7\textwidth]{./figures/sota_vs_doughnut_2_seconds_cg_v4.pdf}
+		\hfill
+		\begin{minipage}[b]{.29\textwidth}%
+			\caption{
+				Data-gathering protocol performance for the~\emph{HD2} on snow experiment.
+				In yellow, we have the linear-focused method.
+				In teal, we have the angular-focused method.
+				In blue-violet is our DRIVE approach.
+				The crosses and regions on the bottom subplot show the medians and interquartile ranges for translational and angular prediction errors.
+			}
+		\end{minipage}%
+	\end{figure}
 \end{block}
+
+
+
 
 
 %----------------------------------------------------------------------------------------
@@ -93,35 +203,89 @@ blablabla
 \begin{column}{.465\textwidth} % The second column
 
 %----------------------------------------------------------------------------------------
-%	New block	
-%----------------------------------------------------------------------------------------
-
-\begin{block}{Block}
-	blablabla
-\end{block}
-
-%----------------------------------------------------------------------------------------
 %	New block
 %----------------------------------------------------------------------------------------
 
-\begin{block}{Block}
-\begin{figure}
-\includegraphics[width=1.0\linewidth]{example-image-b}%
-\vspace{-7mm}
-\caption{Caption}
-\label{fig:simu}
-\end{figure}
+\vspace{-12.5mm}
+\begin{block}{Experimental setup}
+	\begin{itemize}
+		\item Indoor tile, snow-covered terrain, gravel and surfaced ice.
+		\item Three platforms: (1) the HD2 has a top speed of~\SI{1.2}{\meter / \second}; (2) Husky has a top speed of~\SI{1}{\meter / \second}; and (3) the the Warthog has top speed of~\SI{5}{\meter / \second}.    
+		
+	\end{itemize}
+	\begin{figure}%
+		\begin{minipage}[b]{.34\textwidth}%
+			\caption{
+				Three different commercial platforms that were used for the experimental work:
+				a \emph{Superdroid} HD2 (1), a \emph{Clearpath Robotics} Husky (2), and a \emph{Clearpath Robotics} Warthog mounted
+				on wheels (3). 
+				The platforms weigh~\SI{80}{\kilo\gram},~\SI{75}{\kilo\gram} and~\SI{470}{\kilo\gram}, respectively.
+			}
+		\end{minipage}%
+		\hfill
+		\includegraphics[width=0.63\textwidth]{./figures/norlab_robots_with_labels.pdf}
+	\end{figure}
 \end{block}
 
+
+\begin{block}{Slip-based~\acf{BLR}}
+	
+	\begin{itemize}
+		\item Additive slip model based on dynamics-aware basis functions~\cite{Seegmiller2013}.
+		\item Leveraging~\acf{BLR} for learning motion parameters with minimal vehicle and terrain knowledge~\cite{McKinnon2019}.
+		%\item Single-step slip learning.
+		\item Each dimension of slip (longitudinal, lateral, angular) learned separately.
+		\item First-order plus dead time transient response model for powertrain dynamics.
+		\item Implimented and tested for~\acf{SSMR}.
+	\end{itemize}
+	
+	\begin{figure}%
+		\includegraphics[width=0.6\textwidth]{./figures/Figure_2_final_no_margin-1.pdf}
+		\hfill
+		\begin{minipage}[b]{.35\textwidth}%
+			\caption{
+				Top view drawing of a~\ac{SSMR}.
+				In orange is the commanded body velocity~$\CMDBODYVEL$ and the resulting body velocity~$^{\robotf}\bm{v}$ is shown in green.
+				The input-space~$\INPUTSPACE$ is shown in orange and the body velocity space~$\BODYVELSPACE$ is shown in green.
+				The difference between commanded and resulting body velocity is represented as the slip velocity~$\SLIPBODYVEL$ in purple.
+			}
+		\end{minipage}%
+	\end{figure}	
+	\begin{itemize}
+		\item Slip-\ac{BLR} outperforms the most similar model, which performs~\ac{BLR} on~\ac{UGV} actuator dynamics.
+		\item Biggest improvement for Warthog on gravel, which is the highest top speed experiment.
+		\item Model limit reached on surfaced ice, due to extreme slip and long transitory response.
+	\end{itemize}
+	\begin{figure}%
+		\includegraphics[width=0.75\textwidth]{./figures/prediction_errors_BLR_cg_v3.pdf}
+		\hfill
+		\begin{minipage}[b]{.23\textwidth}%
+			\caption{
+				Translational and rotational prediction errors for all models studied in this work.
+				In yellow is the manufactured-defined naive model, in orange is the powertrain-aware model, in red is the acceleration-based~\ac{BLR} model and in purple is our slip-based~\ac{BLR} model. 
+				%Error medians are shown in black for all models.
+			}
+		\end{minipage}%
+	\end{figure}
+	
+\end{block}
 
 %----------------------------------------------------------------------------------------
 %	ACKNOWLEDGEMENTS
 %----------------------------------------------------------------------------------------
 
-\begin{block}{Acknowledgments}
-\footnotesize%
-\noindent This work has been sponsored by blablabla
+
+\begin{block}{Acknowledgments and References}
+	\footnotesize%
+	\noindent This research was supported by the Fonds de recherche du Québec – Nature et technologies (FRQNT) and by the Natural Sciences and Engineering Research Council of Canada (NSERC) through grant CRDPJ 527642-18 SNOW (Self-driving Navigation Optimized for Winter).
+	%\vspace{-5mm}
+	%\nocite{*} % Insert publications even if they are not cited in the poster
+	\bibliographystyle{unsrt}%
+	{\footnotesize\bibliography{biblio}}
+	%\vspace{-3mm}
 \end{block}
+
+
 
 %----------------------------------------------------------------------------------------
 %	CONTACT INFORMATION
@@ -149,13 +313,13 @@ blablabla
 %	REFERENCES
 %----------------------------------------------------------------------------------------
 %
-\begin{block}{References}
-\vspace{-5mm}
-\nocite{*} % Insert publications even if they are not cited in the poster
-\bibliographystyle{unsrt}%
-{\small\bibliography{biblio}}
-\vspace{-3mm}
-\end{block}
+%\begin{block}{References}
+%\vspace{-5mm}
+%\nocite{*} % Insert publications even if they are not cited in the poster
+%\bibliographystyle{unsrt}%
+%{\small\bibliography{biblio}}
+%\vspace{-3mm}
+%\end{block}
 
 \end{frame} % End of the enclosing frame
 
