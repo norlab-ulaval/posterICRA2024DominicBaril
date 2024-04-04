@@ -25,6 +25,7 @@
 \graphicspath{{media/}} % Location of the graphics files
 \usecaptiontemplate{\small\structure{\insertcaptionname~\insertcaptionnumber:\,}\insertcaption} % A fix for figure numbering
 \usepackage{siunitx}
+\usepackage{caption}
 
 %set reference on one line
 \setbeamertemplate{bibliography entry article}{}
@@ -138,7 +139,8 @@
 \begin{block}{\acf{DRIVE}}
 	\begin{figure}
 		\includegraphics[width=0.785\linewidth]{figures/Figure_1_final_no_margin.pdf}%
-		\vspace{-7mm}
+		%\vspace{-7mm}
+		\captionsetup{width = 0.975\linewidth, justification=justified}
 		\caption{
 			Vehicle and terrain characterization done through DRIVE.
 			The manufacturer-defined Naive input-space region is drawn in gray.
@@ -177,8 +179,8 @@
 	\end{table}
 	\begin{figure}%
 		\includegraphics[width=0.7\textwidth]{./figures/sota_vs_doughnut_2_seconds_cg_v4.pdf}
-		\hfill
-		\begin{minipage}[b]{.29\textwidth}%
+		%\hfill
+		\begin{minipage}[b]{.27\textwidth}%
 			\caption{
 				Data-gathering protocol performance for the~\emph{HD2} on snow experiment.
 				In yellow, we have the linear-focused method.
@@ -222,7 +224,7 @@
 				The platforms weigh~\SI{80}{\kilo\gram},~\SI{75}{\kilo\gram} and~\SI{470}{\kilo\gram}, respectively.
 			}
 		\end{minipage}%
-		\hfill
+		%\hfill
 		\includegraphics[width=0.63\textwidth]{./figures/norlab_robots_with_labels.pdf}
 	\end{figure}
 \end{block}
@@ -236,12 +238,13 @@
 		%\item Single-step slip learning.
 		\item Each dimension of slip (longitudinal, lateral, angular) learned separately.
 		\item First-order plus dead time transient response model for powertrain dynamics.
-		\item Implimented and tested for~\acf{SSMR}.
+		\item Implimented and tested for~\acp{SSMR}.
 	\end{itemize}
 	
 	\begin{figure}%
 		\includegraphics[width=0.6\textwidth]{./figures/Figure_2_final_no_margin-1.pdf}
-		\hfill
+		%\hfill
+		\hskip1ex
 		\begin{minipage}[b]{.35\textwidth}%
 			\caption{
 				Top view drawing of a~\ac{SSMR}.
@@ -257,8 +260,8 @@
 		\item Model limit reached on surfaced ice, due to extreme slip and long transitory response.
 	\end{itemize}
 	\begin{figure}%
-		\includegraphics[width=0.75\textwidth]{./figures/prediction_errors_BLR_cg_v3.pdf}
-		\hfill
+		\includegraphics[width=0.735\textwidth]{./figures/prediction_errors_BLR_cg_v3.pdf}
+		%\hfill
 		\begin{minipage}[b]{.23\textwidth}%
 			\caption{
 				Translational and rotational prediction errors for all models studied in this work.
