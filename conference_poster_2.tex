@@ -239,9 +239,10 @@
 \begin{block}{Slip-based~\acf{BLR}}
 	
 	\begin{itemize}
-		\item Additive slip model based on dynamics-aware basis functions~\cite{Seegmiller2013}.
+		\item Additive slip model based on dynamics-aware basis functions~\cite{Seegmiller2014}.
 		\item Leveraging~\acf{BLR} for learning motion parameters with minimal vehicle and terrain knowledge~\cite{McKinnon2019}.
 		%\item Single-step slip learning.
+		\item \ac{BLR} offers low computational complexity for fast learning.
 		\item Each dimension of slip (longitudinal, lateral, angular) learned separately.
 		\item First-order plus dead time transient response model for powertrain dynamics.
 		\item Implimented and tested for~\acp{SSMR}.
@@ -268,7 +269,8 @@
 		\item Powertrain model reduces prediction error for all models on each experiment.
 	\end{itemize}
 	\begin{figure}%
-		\includegraphics[width=0.745\textwidth]{./figures/prediction_errors_BLR_cg_v3.pdf}
+		\includegraphics[width=0.73\textwidth]{./figures/prediction_errors_BLR_cg_v3.pdf}
+		\hskip3mm
 		%\hfill
 		\begin{minipage}[b]{.23\textwidth}%
 			\captionsetup{justification=justified, name=Figure 5}
