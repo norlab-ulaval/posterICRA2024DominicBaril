@@ -49,7 +49,7 @@
 \acrodef{IMU}{inertial measurement unit}
 \acrodef{MPC}{model predictive control}
 \acrodef{GP}{Gaussian processe}
-\acrodef{BLR}{Bayesian linear regression}
+\acrodef{BLR}{Bayesian Linear Regression}
 \acrodef{IPEM}{integrated prediction error minimization}
 \acrodef{MLP}{multilayer perceptron}
 \acrodef{ICP}{iterative closest point}
@@ -119,7 +119,7 @@
 
 \begin{columns}[t] % The whole poster consists of two major columns, each of which can be subdivided further with another \begin{columns} block - the [t] argument aligns each column's content to the top
 
-\begin{column}{.02\textwidth}\end{column} % Empty spacer column
+\begin{column}{.0125\textwidth}\end{column} % Empty spacer column
 
 \begin{column}{.465\textwidth} % The first column
 
@@ -140,7 +140,7 @@
 	\begin{figure}
 		\includegraphics[width=0.785\linewidth]{figures/Figure_1_final_no_margin.pdf}%
 		%\vspace{-7mm}
-		\captionsetup{width = 0.975\linewidth, justification=justified}
+		\captionsetup{width = 0.975\linewidth, justification=justified, name=Figure 1}
 		\caption{
 			Vehicle and terrain characterization done through DRIVE.
 			The manufacturer-defined Naive input-space region is drawn in gray.
@@ -155,10 +155,11 @@
 		\label{fig:simu}
 	\end{figure}
 		\begin{itemize}
-		\item Automated protocol for vehicle input space characterization and training dataset gathering.
+		\item Automated protocol for input space characterization and dataset gathering.
 		\item Random uniform input sampling minimized input bias and stimulates dynamic, transitory behavior.
+		\item Improvement in prediction accuracy of~\SI{31.8}{\%} in translation and~\SI{43.6}{\%} in rotation over angular-focused and linear-focused methods respectively. 
 		\item \SI{6}{\second} intervals to stimulate transitory and steady behavior.
-		\item \SI{46}{\second} required to train a motion model.
+		\item Driving time of~\SI{46}{\second} required to train a motion model.
 	\end{itemize}
 	\begin{table}[!ht]
 		\caption{
@@ -166,6 +167,7 @@
 		}
 		\label{tab:drive_improvement}
 		\centering
+		\small
 		\begin{tabularx}{0.9\textwidth}{l*{6}{>{\centering\arraybackslash}X}}
 			\toprule
 			Prediction & \multicolumn{2}{>{\hsize=\dimexpr2\hsize+2\tabcolsep+\arrayrulewidth\relax}c}{Husky}
@@ -181,6 +183,7 @@
 		\includegraphics[width=0.7\textwidth]{./figures/sota_vs_doughnut_2_seconds_cg_v4.pdf}
 		%\hfill
 		\begin{minipage}[b]{.27\textwidth}%
+			\captionsetup{justification=justified, name=Figure 2}
 			\caption{
 				Data-gathering protocol performance for the~\emph{HD2} on snow experiment.
 				In yellow, we have the linear-focused method.
@@ -209,14 +212,16 @@
 %----------------------------------------------------------------------------------------
 
 \vspace{-12.5mm}
-\begin{block}{Experimental setup}
+\begin{block}{Experimental Setup}
 	\begin{itemize}
 		\item Indoor tile, snow-covered terrain, gravel and surfaced ice.
 		\item Three platforms: (1) the HD2 has a top speed of~\SI{1.2}{\meter / \second}; (2) Husky has a top speed of~\SI{1}{\meter / \second}; and (3) the the Warthog has top speed of~\SI{5}{\meter / \second}.    
-		
+		\item Over~\SI[detect-weight,mode=text]{7}{\kilo\meter} and~\SI[detect-weight=true,mode=text]{1.8}{\hour} of driving data.
 	\end{itemize}
+	
 	\begin{figure}%
-		\begin{minipage}[b]{.34\textwidth}%
+		\begin{minipage}[b]{.32\textwidth}%
+			\captionsetup{justification=justified, name=Figure 3}
 			\caption{
 				Three different commercial platforms that were used for the experimental work:
 				a \emph{Superdroid} HD2 (1), a \emph{Clearpath Robotics} Husky (2), and a \emph{Clearpath Robotics} Warthog mounted
@@ -224,6 +229,7 @@
 				The platforms weigh~\SI{80}{\kilo\gram},~\SI{75}{\kilo\gram} and~\SI{470}{\kilo\gram}, respectively.
 			}
 		\end{minipage}%
+		\hskip10mm
 		%\hfill
 		\includegraphics[width=0.63\textwidth]{./figures/norlab_robots_with_labels.pdf}
 	\end{figure}
@@ -246,6 +252,7 @@
 		%\hfill
 		\hskip1ex
 		\begin{minipage}[b]{.35\textwidth}%
+			\captionsetup{justification=justified, name=Figure 4}
 			\caption{
 				Top view drawing of a~\ac{SSMR}.
 				In orange is the commanded body velocity~$\CMDBODYVEL$ and the resulting body velocity~$^{\robotf}\bm{v}$ is shown in green.
@@ -255,14 +262,16 @@
 		\end{minipage}%
 	\end{figure}	
 	\begin{itemize}
-		\item Slip-\ac{BLR} outperforms the most similar model, which performs~\ac{BLR} on~\ac{UGV} actuator dynamics.
-		\item Biggest improvement for Warthog on gravel, which is the highest top speed experiment.
+		\item Slip-\ac{BLR} outperforms the most similar model,which performs~\ac{BLR} on~\ac{UGV} actuator dynamics, by~\SI{6}{\%} in translation and~\SI{22}{\%} in rotation.
+		\item Biggest improvement for Warthog on gravel with~\SI{23}{\%} in translation and~\SI{71}{\%} in rotation error. This is the highest top speed experiment.
 		\item Model limit reached on surfaced ice, due to extreme slip and long transitory response.
+		\item Powertrain model reduces prediction error for all models on each experiment.
 	\end{itemize}
 	\begin{figure}%
-		\includegraphics[width=0.735\textwidth]{./figures/prediction_errors_BLR_cg_v3.pdf}
+		\includegraphics[width=0.745\textwidth]{./figures/prediction_errors_BLR_cg_v3.pdf}
 		%\hfill
 		\begin{minipage}[b]{.23\textwidth}%
+			\captionsetup{justification=justified, name=Figure 5}
 			\caption{
 				Translational and rotational prediction errors for all models studied in this work.
 				In yellow is the manufactured-defined naive model, in orange is the powertrain-aware model, in red is the acceleration-based~\ac{BLR} model and in purple is our slip-based~\ac{BLR} model. 
